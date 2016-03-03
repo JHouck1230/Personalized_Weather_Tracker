@@ -14,7 +14,7 @@ function init() {
 }
 
 function loadFromLocalStorage() {
-	if(localStorage.cities === undefined) {
+	if(localStorage.cityIds === undefined) {
 		localStorage.cityIds = '[]';
 	}
 	cityIds = JSON.parse(localStorage.cityIds);
@@ -26,12 +26,10 @@ function loadFromLocalStorage() {
 }
 
 function getSavedRequest(cityId) {
-	console.log(cityId);
 	var units = '&units=' + $('#units').val();
 	$.ajax({
 		url: `http://api.openweathermap.org/data/2.5/weather?APPID=730a6331a80453a3f5fc4971ae2a807b${units}&id=${cityId}`,
 		success: function(data) {
-			console.log(data);
 			$('.location:not(#template').remove();
 			createFavoritesPanel(data);
 			createPanel(data);
@@ -45,7 +43,6 @@ function getSavedRequest(cityId) {
 }
 
 function createFavoritesPanel(data) {
-	console.log(data);
 	$('#favsColumn').removeClass('hide');
 	var $favsInfo = $('#templateFavorite').clone();
 	$favsInfo.removeAttr('id').addClass('favorites');
@@ -121,7 +118,6 @@ function sendRequest(coords, units) {
 	var units = '&units=' + $('#units').val();
 	if($(this).siblings().children().text()) {
 		var cityId = '&id=' + $(this).siblings().children().text();
-		console.log(cityId);
 		coords = '';
 	}
 	$.ajax({
@@ -167,8 +163,6 @@ function saveToLocalStorage(event) {
 	cityIds.push(cityId);
 	localStorage.cityIds = JSON.stringify(cityIds);
 	for (var i = 0; i < cityIds.length; i++) {
-		console.log('cityIds[i]: ', cityIds[i]);
-		console.log('cityId: ', cityId);
 		if(cityIds[i] === cityId) getSavedRequest(cityIds[i]);
 	}
 }
@@ -220,8 +214,11 @@ function removeFavorite(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	var cityId = $this.find('.buttonCityId').text();
-	cityId.toString();
-	localStorage.removeItem(cityId);
+	cityId = cityId.toString();
+	cityIds = cityIds.filter(function(id) {
+		return id !== cityId;
+	});
+	localStorage.cityIds = JSON.stringify(cityIds);
 	$this.siblings().remove();
 	$this.remove();
 }
