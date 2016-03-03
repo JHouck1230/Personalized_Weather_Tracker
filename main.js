@@ -10,7 +10,7 @@ function init() {
 	$(document).on('click', '#save', saveToLocalStorage);
 	$(document).on('click', '.panel', getDetails);
 	$(document).on('click', '.delete', removeFavorite);
-	$(document).on('click', '.findFav', getSavedRequest);
+	$(document).on('click', '.findFav', sendRequest);
 }
 
 function loadFromLocalStorage() {
@@ -26,16 +26,15 @@ function loadFromLocalStorage() {
 }
 
 function getSavedRequest(cityId) {
-	if(!cityId) cityId = $(this).find('.buttonCityId').text();
-	console.log('get saved cityid: ', this);
+	console.log(cityId);
 	var units = '&units=' + $('#units').val();
 	$.ajax({
 		url: `http://api.openweathermap.org/data/2.5/weather?APPID=730a6331a80453a3f5fc4971ae2a807b${units}&id=${cityId}`,
 		success: function(data) {
+			console.log(data);
 			$('.location:not(#template').remove();
 			createFavoritesPanel(data);
 			createPanel(data);
-			console.log('data: ', data);
 			return;
 		},
 		error: function(error) {
@@ -46,6 +45,7 @@ function getSavedRequest(cityId) {
 }
 
 function createFavoritesPanel(data) {
+	console.log(data);
 	$('#favsColumn').removeClass('hide');
 	var $favsInfo = $('#templateFavorite').clone();
 	$favsInfo.removeAttr('id').addClass('favorites');
@@ -118,10 +118,14 @@ function findLocation(city, state, zip, country, units) {
 }
 
 function sendRequest(coords, units) {
-	if($(this).find('buttonCityId').text()) var cityId = $(this).find('.buttonCityId').text();
-	console.log(cityId);
+	var units = '&units=' + $('#units').val();
+	if($(this).siblings().children().text()) {
+		var cityId = '&id=' + $(this).siblings().children().text();
+		console.log(cityId);
+		coords = '';
+	}
 	$.ajax({
-		url: `http://api.openweathermap.org/data/2.5/weather?id=524901&APPID=730a6331a80453a3f5fc4971ae2a807b${coords}${units}`, 
+		url: `http://api.openweathermap.org/data/2.5/weather?APPID=730a6331a80453a3f5fc4971ae2a807b${coords}${units}${cityId}`, 
 		success: function(data) {
 			$('#city').val('');
 			$('#state').val('');
@@ -139,7 +143,6 @@ function sendRequest(coords, units) {
 }
 
 function createPanel(data) {
-	console.log('create panel: ', data);
 	var icon;
 	for (var i = 0; i < data.weather.length; i++) {
 		icon = data.weather[i].icon;
@@ -163,7 +166,11 @@ function saveToLocalStorage(event) {
 	var cityId = $('.locationID').text();
 	cityIds.push(cityId);
 	localStorage.cityIds = JSON.stringify(cityIds);
-	getSavedRequest(cityIds);
+	for (var i = 0; i < cityIds.length; i++) {
+		console.log('cityIds[i]: ', cityIds[i]);
+		console.log('cityId: ', cityId);
+		if(cityIds[i] === cityId) getSavedRequest(cityIds[i]);
+	}
 }
 
 function getDetails(event) {
@@ -191,31 +198,32 @@ function showDetails(data) {
 	var list = data.list;
 	var arr = [];
 	for (var a = 0, b = 3; b < list.length; a++, b += 8) {
-			var date = list[b].dt_txt.slice(5,10).split('-').join('/');
-			$detailInformation.find(`.day${a}`).text(date);
-			for (var d = 0; d < list[b].weather.length; d++) {
-				var dayIcon = list[b].weather[d].icon;
-				var dayIconCap = list[b].weather[d].main;
-				$detailInformation.find(`.dayIcon${a}`).attr('src', `http://openweathermap.org/img/w/${dayIcon}.png`);
-				$detailInformation.find(`.dayIconCap${a}`).text(dayIconCap);
-			}
-			$detailInformation.find(`.dayTemp${a}`).text('Temp: ' + list[b].main.temp + '°');
-			$detailInformation.find(`.dayHigh${a}`).text('High: ' + list[b].main.temp_max + '°');
-			$detailInformation.find(`.dayLow${a}`).text('Low: '  + list[b].main.temp_min + '°');
-			$detailInformation.find(`.dayHumid${a}`).text('Humidity: ' + list[b].main.humidity + '%');
-			$detailInformation.find(`.dayWindSpd${a}`).text('Wind Speed: ' + list[b].wind.speed);			
+		var date = list[b].dt_txt.slice(5,10).split('-').join('/');
+		$detailInformation.find(`.day${a}`).text(date);
+		for (var d = 0; d < list[b].weather.length; d++) {
+			var dayIcon = list[b].weather[d].icon;
+			var dayIconCap = list[b].weather[d].main;
+			$detailInformation.find(`.dayIcon${a}`).attr('src', `http://openweathermap.org/img/w/${dayIcon}.png`);
+			$detailInformation.find(`.dayIconCap${a}`).text(dayIconCap);
 		}
-		return $detailInformation;
+		$detailInformation.find(`.dayTemp${a}`).text('Temp: ' + list[b].main.temp + '°');
+		$detailInformation.find(`.dayHigh${a}`).text('High: ' + list[b].main.temp_max + '°');
+		$detailInformation.find(`.dayLow${a}`).text('Low: '  + list[b].main.temp_min + '°');
+		$detailInformation.find(`.dayHumid${a}`).text('Humidity: ' + list[b].main.humidity + '%');
+		$detailInformation.find(`.dayWindSpd${a}`).text('Wind Speed: ' + list[b].wind.speed);			
+	}
+	return $detailInformation;
 }
 
 function removeFavorite(event) {
+	var $this = $(this);
 	event.preventDefault();
 	event.stopPropagation();
-	var cityId = $(this).find('.buttonCityId').text();
+	var cityId = $this.find('.buttonCityId').text();
 	cityId.toString();
-	console.log(cityId);
 	localStorage.removeItem(cityId);
-	$(this).remove();
+	$this.siblings().remove();
+	$this.remove();
 }
 
 
