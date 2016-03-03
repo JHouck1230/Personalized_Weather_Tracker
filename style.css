@@ -1,0 +1,38 @@
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+.panel:hover {
+	background-color: lightblue;
+}
+
+.panel:active {
+	-webkit-box-shadow: inset 0px 0px 10px 5px rgba(0,0,0,0.75);
+	-moz-box-shadow: inset 0px 0px 10px 5px rgba(0,0,0,0.75);
+	box-shadow: inset 0px 0px 10px 5px rgba(0,0,0,0.75);
+}
+
+button {
+	cursor: pointer;
+}
+
+.glyphicon-star {
+	color: gold;
+}
+
+.weatherIcon {
+	height: 90px;
+}
+
+.hide {
+	display: none;
+}
+
+#template, #templateFavorite, .locationID, #detailsTemplate {
+	display: none;
+}
+

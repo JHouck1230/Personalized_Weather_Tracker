@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Weather App</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Got Weather? <small>Enter your location.</small></h1>
+      <div id='searchBar' class="container">
+        <form class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="city" placeholder="City">
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" id="state" placeholder="State (e.g. WV, AZ)" maxlength="2">
+          </div>
+          <div class="form-group">
+            <input type="number" class="form-control" id="zip" placeholder="Zip Code" required>
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" id="country" placeholder="Country (e.g. US, UK)" maxlength="2" required>
+          </div>
+          <div class="form-group">
+            <select class="form-control" id="units">
+              <option value='imperial'>°F</option>
+              <option value='metric'>°C</option>
+            </select>
+          </div>
+          <button id='submit' type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+        </form>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div id='favsColumn' class="hide col-xs-12 col-sm-6 col-md-6 col-lg-6">
+          <div id='favorites' class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div id='templateFavorite' class="favorite panel panel-default">
+                <div class="row">
+                  <div class="panel-heading">
+                    <div class="col-xs-4">
+                      <h3 class='favCityName' class="panel-title"></h3>
+                    </div>
+                    <div class="col-xs-1 col-lg-offset-0">
+                      <button id="star" class='btn btn-info' title='Favorited'><span class="glyphicon glyphicon-star" aria-hidden="true"></span></button>
+                    </div>
+                  </div>
+                </div>
+                <div id='favWeather' class="panel-body">
+                  <div class="favTemp"></div>
+                  <div class="favHighTemp"></div>
+                  <div class="favLowTemp"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+          <div id='results' class="row">
+            <div id='template' class="location col-xs-12 col-sm-12 col-md-10 col-lg-10">
+              <div class="panel panel-default">
+                <div class="row">
+                  <div class="panel-heading">
+                    <div class="col-xs-6 col-sm-6 col-md-7 col-lg-7">
+                      <h3 class='cityName' class="panel-title"></h3>
+                    </div>
+                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 col-xs-offset-3 col-sm-offset-3 col-md-offset-2 col-lg-offset-3">
+                      <button id="save" class='btn btn-info' title='Save'><span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                    <div id='weather' class="panel-body">
+                      <div class="temp"></div>
+                      <div class="highTemp"></div>
+                      <div class="lowTemp"></div>
+                    </div>
+                  </div>
+                  <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 col-xs-offset-1 col-sm-offset-1 col-md-offset-1 col-lg-offset-1">
+                    <span class="weatherIconCap"></span>
+                    <img class='weatherIcon'>
+                    <p class="locationID"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='forecast' class="row">
+        <div id='detailsTemplate' class="forecastDetails col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <table class="table">
+            <tbody id='detailInformation'>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="day0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="day1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="day2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="day3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="day4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td><img class="dayIcon0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td><img class="dayIcon1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td><img class="dayIcon2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td><img class="dayIcon3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td><img class="dayIcon4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayIconCap0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayIconCap1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayIconCap2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayIconCap3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayIconCap4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayTemp0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayTemp1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayTemp2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayTemp3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayTemp4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHigh0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHigh1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHigh2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHigh3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHigh4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayLow0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayLow1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayLow2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayLow3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayLow4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHumid0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHumid1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHumid2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHumid3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayHumid4"></td>
+                </div>
+                </tr>
+              </div>
+              <div class="row">
+                <tr>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayWindSpd0"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayWindSpd1"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayWindSpd2"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayWindSpd3"></td>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                  <td class="dayWindSpd4"></td>
+                </div>
+                </tr>
+              </div>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
