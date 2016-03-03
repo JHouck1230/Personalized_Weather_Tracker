@@ -7,7 +7,10 @@ var cityIds;
 function init() {
 	loadFromLocalStorage();
 	$('#submit').click(createRequest);
-	$('#save').click(saveToLocalStorage);
+	$(document).on('click', '#save', saveToLocalStorage);
+	$(document).on('click', '.panel', getDetails);
+	$(document).on('click', '.delete', removeFavorite);
+	$(document).on('click', '.findFav', getSavedRequest);
 }
 
 function loadFromLocalStorage() {
@@ -16,18 +19,23 @@ function loadFromLocalStorage() {
 	}
 	cityIds = JSON.parse(localStorage.cityIds);
 	for (var i = 0; i < cityIds.length; i++) {
-		$('#favorites').append(getSavedRequest(cityIds[i])); 
+		var cityId = cityIds[i];
+		$('#favorites').append(getSavedRequest(cityId)); 
 	}
+	return;
 }
 
 function getSavedRequest(cityId) {
-	console.log('city id: ', cityId);
+	if(!cityId) cityId = $(this).find('.buttonCityId').text();
+	console.log('get saved cityid: ', this);
+	var units = '&units=' + $('#units').val();
 	$.ajax({
-		url: `http://api.openweathermap.org/data/2.5/weather?id=524901&APPID=730a6331a80453a3f5fc4971ae2a807b&id=${cityId}`,
+		url: `http://api.openweathermap.org/data/2.5/weather?APPID=730a6331a80453a3f5fc4971ae2a807b${units}&id=${cityId}`,
 		success: function(data) {
-			$('.favorite:not(#templateFavorites').remove();
+			$('.location:not(#template').remove();
+			createFavoritesPanel(data);
+			createPanel(data);
 			console.log('data: ', data);
-			$('#favorites').append(createFavoritesPanel(data));
 			return;
 		},
 		error: function(error) {
@@ -38,21 +46,17 @@ function getSavedRequest(cityId) {
 }
 
 function createFavoritesPanel(data) {
-	console.log(data);
 	$('#favsColumn').removeClass('hide');
-	var $favsInfo = $('#template').clone()
-	$favsInfo.removeAttr('id').addClass('favorite');
-	$favsInfo.find('.locationID').text(data.id);
-	$favsInfo.find('.cityName').text(data.name);
-	console.log(data.main);
-	$favsInfo.find('.temp').text('Temp: ' + data.main.temp + '°');
-	console.log('temp: ', data.main.temp);
-	$favsInfo.find('.highTemp').text('High: ' + data.main.temp_max + '°');
-	$favsInfo.find('.lowTemp').text('Low: '  + data.main.temp_min + '°');
-	return $favsInfo;
+	var $favsInfo = $('#templateFavorite').clone();
+	$favsInfo.removeAttr('id').addClass('favorites');
+	$favsInfo.find('.buttonCityId').text(data.id);
+	$favsInfo.find('.findFav').text(data.name);
+	$('#favorites').append($favsInfo);
+	return;
 }
 
 function createRequest(event) {
+	event.stopPropagation();
 	event.preventDefault();
 	var city = '';
 	var zip = '';
@@ -114,6 +118,8 @@ function findLocation(city, state, zip, country, units) {
 }
 
 function sendRequest(coords, units) {
+	if($(this).find('buttonCityId').text()) var cityId = $(this).find('.buttonCityId').text();
+	console.log(cityId);
 	$.ajax({
 		url: `http://api.openweathermap.org/data/2.5/weather?id=524901&APPID=730a6331a80453a3f5fc4971ae2a807b${coords}${units}`, 
 		success: function(data) {
@@ -122,8 +128,7 @@ function sendRequest(coords, units) {
 			$('#zip').val('');
 			$('#country').val('');
 			$('.location:not(#template').remove();
-			$('#results').append(createPanel(data));
-			$('.location').click(getDetails(units));
+			createPanel(data);
 			return data;
 		},
 		error: function(error) {
@@ -134,7 +139,7 @@ function sendRequest(coords, units) {
 }
 
 function createPanel(data) {
-	console.log(data);
+	console.log('create panel: ', data);
 	var icon;
 	for (var i = 0; i < data.weather.length; i++) {
 		icon = data.weather[i].icon;
@@ -149,27 +154,27 @@ function createPanel(data) {
 	$cityInfo.find('.lowTemp').text('Low: '  + data.main.temp_min + '°');
 	$cityInfo.find('.weatherIconCap').text(iconCap);
 	$cityInfo.find('.weatherIcon').attr('src', `http://openweathermap.org/img/w/${icon}.png`);
-	return $cityInfo;
+	$('#results').append($cityInfo);
 }
 
 function saveToLocalStorage(event) {
 	event.stopPropagation();
 	event.preventDefault();
-	var data = sendRequest();
-	var cityId = data.id;
+	var cityId = $('.locationID').text();
 	cityIds.push(cityId);
-	$('#favorites').append(getSavedRequest(data));
 	localStorage.cityIds = JSON.stringify(cityIds);
+	getSavedRequest(cityIds);
 }
 
-function getDetails(units) {
+function getDetails(event) {
+	event.stopPropagation();
+	event.preventDefault();
+	var units = '&units=' + $('#units').val();
 	var locationID = $('.locationID').text();
-	console.log(locationID);
 	$.ajax({
 		url: `http://api.openweathermap.org/data/2.5/forecast?appid=730a6331a80453a3f5fc4971ae2a807b&id=${locationID}${units}`, 
 		success: function(data) {
-			$('.forecaseDetails:not(#detailsTemplate').remove();
-			console.log('success: ', data);
+			$('.forecastDetails:not(#detailsTemplate').remove();
 			$('#forecast').append(showDetails(data));
 			return;
 		},
@@ -200,11 +205,18 @@ function showDetails(data) {
 			$detailInformation.find(`.dayHumid${a}`).text('Humidity: ' + list[b].main.humidity + '%');
 			$detailInformation.find(`.dayWindSpd${a}`).text('Wind Speed: ' + list[b].wind.speed);			
 		}
-
 		return $detailInformation;
 }
 
-
+function removeFavorite(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	var cityId = $(this).find('.buttonCityId').text();
+	cityId.toString();
+	console.log(cityId);
+	localStorage.removeItem(cityId);
+	$(this).remove();
+}
 
 
 
